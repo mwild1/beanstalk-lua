@@ -77,11 +77,7 @@ end
 
 --Reserve a job from the queue, return a job
 function beanstalk_connected:reserve(timeout)
-	if not timeout then
-		self.connection:send("reserve\r\n")
-	else
-		self.connection:send("reserve-with-timeout "..timeout.."\r\n")
-	end
+	self.connection:send("reserve-with-timeout "..(timeout or -1).."\r\n")
 	local line = self.connection:receive("*l")
 	print(line)
 	local id, data_len = line:match("^RESERVED (%d+) (%d+)$")
