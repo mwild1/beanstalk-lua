@@ -25,6 +25,11 @@ end })
 --Carriage-return + linefeed for writing to the socket.
 local crlf = "\r\n"
 
+--Utility function for checking whether one string starts with another
+local function starts(String,Start)
+   return string.sub(String,1,string.len(Start))==Start
+end
+
 --Create a new beanstalk object
 function beanstalk.new() 
 	local object = { watching = {} }
@@ -97,11 +102,6 @@ function beanstalk_connected:use(tube)
 	else 
 		error(line)
 	end
-end
-
---Utility function for checking whether one string starts with another
-function starts(String,Start)
-   return string.sub(String,1,string.len(Start))==Start
 end
 
 return beanstalk
