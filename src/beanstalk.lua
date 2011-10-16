@@ -89,6 +89,12 @@ function beanstalk_connected:reserve()
 	return beanjob:new(id, data)
 end
 
+function beanstalk_connected:delete(id)
+	self.connection:send("delete "..id..crlf)
+	local result = self.connection:receive("*l")
+	return result == "DELETED", result
+end
+
 --Use a tube, for writing jobs
 function beanstalk_connected:use(tube)
 	self.connection:send("use "..tube..crlf)
