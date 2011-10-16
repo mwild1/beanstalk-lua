@@ -78,17 +78,15 @@ end
 
 --Reserve a job from the queue, return a beanjob
 function beanstalk_connected:reserve()
-	self.connection:send("reserve"..crlf)
-	line = self.connection:receive( "*l")
+	self.connection:send("reserve\r\n")
+	local line = self.connection:receive("*l")
 	print(line)
-	if starts(line,"RESERVED") then
-		id, data = string.match( line, "%S+ (%S+) (%S+)" )
-		line = self.connection:receive("*l")
-		job = beanjob:new(line, id)
-		return job
-	else
-		error(line)
+	local id, data_len = line:match("^RESERVED (%d+) (%d+)$")
+	if not id then
+		return nil, line:lower();
 	end
+	local data = self.connection:receive(data_len)
+	return beanjob:new(id, data)
 end
 
 --Use a tube, for writing jobs
