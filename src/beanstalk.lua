@@ -77,8 +77,12 @@ function beanstalk_connected:watch(tube)
 end
 
 --Reserve a job from the queue, return a beanjob
-function beanstalk_connected:reserve()
-	self.connection:send("reserve\r\n")
+function beanstalk_connected:reserve(timeout)
+	if not timeout then
+		self.connection:send("reserve\r\n")
+	else
+		self.connection:send("reserve-with-timeout "..timeout.."\r\n")
+	end
 	local line = self.connection:receive("*l")
 	print(line)
 	local id, data_len = line:match("^RESERVED (%d+) (%d+)$")
