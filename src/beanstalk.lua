@@ -1,5 +1,4 @@
 local socket = require("socket")
-local beanjob = require("beanjob")
 
 local beanstalk = { -- Module
 	default_server = "127.0.0.1";
@@ -76,7 +75,7 @@ function beanstalk_connected:watch(tube)
 	end	
 end
 
---Reserve a job from the queue, return a beanjob
+--Reserve a job from the queue, return a job
 function beanstalk_connected:reserve(timeout)
 	if not timeout then
 		self.connection:send("reserve\r\n")
@@ -90,7 +89,7 @@ function beanstalk_connected:reserve(timeout)
 		return nil, line:lower();
 	end
 	local data = self.connection:receive(data_len)
-	return beanjob:new(id, data)
+	return { id = id, data = data }
 end
 
 function beanstalk_connected:delete(id)
