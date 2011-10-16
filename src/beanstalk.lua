@@ -53,16 +53,15 @@ function beanstalk_unconnected:connect(server, port)
 end
 
 --Put a job into the queue
-function beanstalk_connected:put(data, priority)
-	output = "put "..priority.." 1 1 "..#data
-	self.connection:send(output..crlf..data..crlf)
+function beanstalk_connected:put(data, ttr, priority, delay)
+	output = ("put %d %d %d %d\r\n%s\r\n"):format(priority or 0, delay or 0, ttr or 1, #data, data)
+	self.connection:send(output)
 	line = self.connection:receive( "*l")
-	if starts(line,"INSERTED") then
-		print(line)
-		return nil
-	else
-		error(line)
+	local result, id = line:match("^(%S+) (%d+)$");
+	if not result then
+		return nil, line:lower();
 	end	
+	return tonumber(id), result:lower();
 end
 
 --Watch a tube, for reserving jobs
